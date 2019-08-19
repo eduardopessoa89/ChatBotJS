@@ -2,11 +2,9 @@ const express = require('express');
 const app = express();
 const bodyparser = require('body-parser');
 const request = require('request');
-const mongoose = require('mongoose');
+const News = require('./models/news');
 
 const port = process.env.PORT || 3000;
-
-mongoose.connect('mongodb+srv://casper:casper123@cluster0-plvgn.mongodb.net/casper_bd?retryWrites=true&w=majority', {useNewUrlParser: true});
 
 app.listen(port, () => {
     console.log('Listening on port 3000');
@@ -34,6 +32,10 @@ app.post('/webhook', (req, res) => {
               (event) => {
                 if (event.message) {
                     treatMessage(event);
+                }else {
+                  if (event.postback){
+
+                  }
                 }
               }
             );
@@ -45,7 +47,35 @@ app.post('/webhook', (req, res) => {
 
 // Functions
 
-  
+function treatPostback (event) {
+  let senderID = event.sender.id;
+  let message = event.message;
+  let messagePostback = message.postback;
+
+  if (messagePostback){
+    switch(messagePostback){
+      case 'ESPORTES':
+        sendCarrossel(senderID);
+        break;
+
+      case 'POLÍTICA':
+        sendCarrossel(senderID);
+        break;
+
+      case 'ENTRETENIMENTO':
+        sendCarrossel(senderID);
+        break;
+
+      case 'FAMOSOS':
+        sendCarrossel(senderID);
+        break;
+    }
+  }else{
+    console.log(senderID);
+  }
+}
+
+
 function treatMessage (event) {
     let senderID = event.sender.id;
     let message = event.message;
@@ -62,37 +92,14 @@ function treatMessage (event) {
                 callSendAPI(senderID, "Até logo");
 
                 break;
-
-            case 'ESPORTES':
-                callSendAPI(senderID, "Aqui aparecem as noticias sobre esportes");
-                sendCarrossel(senderID);
-                break;
-
-            case 'POLÍTICA':
-                callSendAPI(senderID, "Aqui aparecem as noticias sobre política");
-                sendCarrossel(senderID);
-                break;
-
-            case 'ENTRETENIMENTO':
-                callSendAPI(senderID, "Aqui aparecem as noticias sobre entretenimento");
-                sendCarrossel(senderID);
-                break;
-
-            case 'FAMOSOS':
-                callSendAPI(senderID, "Aqui aparecem as noticias sobre famosos");
-                sendCarrossel(senderID);
-                break;
-            
             default:
                 callSendAPI(senderID, "Desculpa, mas eu não entendi o que voce disse!!");
                 callSendAPI(senderID, "Por favor escolha um tema valido!");
-
                 break;
         };
     };
 
 };
-
 
 function sendCarrossel (senderID) {
   var request_body = {
